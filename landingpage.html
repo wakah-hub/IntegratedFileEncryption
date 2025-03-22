@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SecureVault - Cloud File Encryption</title>
+    <style>
+        :root {
+            /* Primary brand colors */
+            --primary: #4285F4;    /* Google blue */
+            --secondary: #34A853;  /* Google green */
+            --accent1: #FBBC05;    /* Google yellow */
+            --accent2: #EA4335;    /* Google red */
+            --light: #f8f9fa;
+            --dark: #202124;
+            --gray: #5f6368;
+            --light-gray: #e8eaed;
+            --border-color: #dadce0;
+            --card-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            --hover-shadow: 0 4px 8px rgba(0,0,0,0.16);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Google Sans', 'Segoe UI', Roboto, Arial, sans-serif;
+        }
+        
+        body {
+            background-color: var(--light);
+            color: var(--dark);
+            line-height: 1.6;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+        
+        /* Header Styles */
+        header {
+            background-color: white;
+            border-bottom: 1px solid var(--border-color);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 24px;
+            height: 64px;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo-img {
+            width: 40px;
+            height: 40px;
+            margin-right: 12px;
+        }
+        
+        .logo-text {
+            font-size: 22px;
+            font-weight: 500;
+            color: var(--dark);
+            letter-spacing: -0.5px;
+        }
+        
+        .auth-buttons {
+            display: flex;
+            gap: 16px;
+        }
+        
+        .btn {
+            padding: 10px 24px;
+            border-radius: 4px;
+            font-weight: 500;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+            border: none;
+            letter-spacing: 0.25px;
+        }
+        
+        .btn-outline {
+            border: 1px solid var(--border-color);
+            color: var(--primary);
+            background-color: transparent;
+        }
+        
+        .btn-outline:hover {
+            background-color: rgba(66, 133, 244, 0.04);
+            box-shadow: var(--card-shadow);
+        }
+        
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+        }
+        
+        .btn-primary:hover {
+            background-color: #3367d6; /* Darker blue */
+            box-shadow: var(--hover-shadow);
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 140px 0 80px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #ffffff 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+        }
+        
+        .hero-split {
+            display: flex;
+            align-items: center;
+            gap: 40px;
+        }
+        
+        .hero-content {
+            flex: 1;
+            max-width: 550px;
+        }
+        
+        .hero-image {
+            flex: 1;
+            text-align: right;
+        }
+        
+        .hero h1 {
+            font-size: 48px;
+            font-weight: 500;
+            line-height: 1.2;
+            margin-bottom: 24px;
+            color: var(--dark);
+        }
+        
+        .hero h1 span {
+            color: var(--primary);
+        }
+        
+        .hero p {
+            font-size: 18px;
+            color: var(--gray);
+            margin-bottom: 32px;
+            line-height: 1.6;
+        }
+        
+        .hero-buttons {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 40px;
+        }
+        
+        .feature-row {
+            display: flex;
+            gap: 24px;
+            margin-top: 40px;
+        }
+        
+        .feature-card {
+            background: white;
+            border-radius: 8px;
+            padding: 24px;
+            flex: 1;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s ease;
+            border: 1px solid var(--border-color);
+        }
+        
+        .feature-card:hover {
+            box-shadow: var(--hover-shadow);
+            transform: translateY(-4px);
+        }
+        
+        .feature-icon {
+            width: 48px;
+            height: 48px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+        
+        .feature-icon.blue {
+            background-color: rgba(66, 133, 244, 0.1);
+            color: var(--primary);
+        }
+        
+        .feature-icon.green {
+            background-color: rgba(52, 168, 83, 0.1);
+            color: var(--secondary);
+        }
+        
+        .feature-icon.yellow {
+            background-color: rgba(251, 188, 5, 0.1);
+            color: var(--accent1);
+        }
+        
+        .feature-icon.red {
+            background-color: rgba(234, 67, 53, 0.1);
+            color: var(--accent2);
+        }
+        
+        .feature-card h3 {
+            font-size: 18px;
+            font-weight: 500;
+            margin-bottom: 12px;
+            color: var(--dark);
+        }
+        
+        .feature-card p {
+            font-size: 14px;
+            color: var(--gray);
+        }
+        
+        /* Auth Modal */
+        .auth-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .auth-modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .auth-card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 24px 38px rgba(0,0,0,0.14);
+            width: 100%;
+            max-width: 400px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .auth-header {
+            padding: 24px;
+            text-align: center;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .auth-logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+        }
+        
+        .auth-logo-img {
+            width: 32px;
+            height: 32px;
+            margin-right: 12px;
+        }
+        
+        .auth-logo-text {
+            font-size: 20px;
+            font-weight: 500;
+            color: var(--dark);
+        }
+        
+        .auth-title {
+            font-size: 24px;
+            font-weight: normal;
+            color: var(--dark);
+            margin-bottom: 8px;
+        }
+        
+        .auth-subtitle {
+            font-size: 14px;
+            color: var(--gray);
+        }
+        
+        .auth-body {
+            padding: 24px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: var(--dark);
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 16px;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.2);
+        }
+        
+        .form-text {
+            margin-top: 8px;
+            font-size: 12px;
+            color: var(--gray);
+        }
+        
+        .form-check {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .form-check-input {
+            margin-right: 8px;
+            accent-color: var(--primary);
+        }
+        
+        .auth-footer {
+            padding: 16px 24px;
+            text-align: center;
+            background-color: var(--light);
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .auth-footer p {
+            font-size: 14px;
+            color: var(--gray);
+            margin-bottom: 8px;
+        }
+        
+        .auth-footer a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        
+        /* Testimonials */
+        .testimonials {
+            padding: 80px 0;
+            background-color: white;
+        }
+        
+        .section-title {
+            text-align: center;
+            margin-bottom: 48px;
+        }
+        
+        .section-title h2 {
+            font-size: 32px;
+            font-weight: 500;
+            color: var(--dark);
+            margin-bottom: 16px;
+        }
+        
+        .section-title p {
+            font-size: 18px;
+            color: var(--gray);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .testimonial-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+        }
+        
+        .testimonial-card {
+            background: var(--light);
+            border-radius: 8px;
+            padding: 24px;
+            transition: all 0.3s ease;
+        }
+        
+        .testimonial-card:hover {
+            box-shadow: var(--hover-shadow);
+        }
+        
+        .testimonial-content {
+            font-size: 16px;
+            color: var(--dark);
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+        
+        .testimonial-author {
+            display: flex;
+            align-items: center;
+        }
+        
+        .testimonial-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background-color: #ddd;
+            margin-right: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 20px;
+        }
+        
+        .testimonial-info h4 {
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--dark);
+            margin-bottom: 4px;
+        }
+        
+        .testimonial-info p {
+            font-size: 14px;
+            color: var(--gray);
+        }
+        
+        /* Footer */
+        footer {
+            background-color: var(--dark);
+            color: white;
+            padding: 48px 0 24px;
+        }
+        
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+        
+        .footer-logo {
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        
+        .footer-logo-text {
+            font-size: 20px;
+            font-weight: 500;
+            color: white;
+        }
+        
+        .footer-about p {
+            font-size: 14px;
+            color: rgba(255,255,255,0.7);
+            margin-bottom: 16px;
+        }
+        
+        .social-links {
+            display: flex;
+            gap: 16px;
+        }
+        
+        .social-link {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            transition: all 0.3s ease;
+        }
+        
+        .social-link:hover {
+            background-color: var(--primary);
+        }
+        
+        .footer-links h3 {
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 20px;
+            color: white;
+        }
+        
+        .footer-links ul {
+            list-style: none;
+        }
+        
+        .footer-links li {
+            margin-bottom: 12px;
+        }
+        
+        .footer-links a {
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        
+        .footer-links a:hover {
+            color: white;
+        }
+        
+        .footer-bottom {
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding-top: 24px;
+            text-align: center;
+            font-size: 14px;
+            color: rgba(255,255,255,0.5);
+        }
+        
+        /* Responsive Styles */
+        @media (max-width: 992px) {
+            .hero-split {
+                flex-direction: column;
+            }
+            
+            .hero-image {
+                order: -1;
+                margin-bottom: 40px;
+            }
+            
+            .testimonial-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .footer-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 36px;
+            }
+            
+            .feature-row {
+                flex-direction: column;
+            }
+            
+            .testimonial-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .footer-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container header-container">
+            <div class="logo">
+                <div class="logo-img">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#4285F4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                    </svg>
+                </div>
+                <div class="logo-text">SecureVault</div>
+            </div>
+            
+            <div class="auth-buttons">
+                <a href="signin.html" class="btn btn-outline" id="header-login-btn">Sign In</a>
+                <a href="signup.html" class="btn btn-primary" id="header-signup-btn">Get Started</a>
+            </div>
+        </div>
+    </header>
+    
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-split">
+                <div class="hero-content">
+                    <h1>Keep your files <span>secure</span> with military-grade encryption</h1>
+                    <p>SecureVault provides state-of-the-art encryption technology that lets you protect, share, and store your sensitive files with complete peace of mind.</p>
+                    
+                    <div class="hero-buttons">
+                        <a href="signup.html" class="btn btn-primary" id="hero-signup-btn">Try for Free</a>
+                        <a href="#" class="btn btn-outline">Learn More</a>
+                    </div>
+                    
+                    <!-- Feature Cards -->
+                    <div class="feature-row">
+                        <div class="feature-card">
+                            <div class="feature-icon blue">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                                </svg>
+                            </div>
+                            <h3>AES-256 Encryption</h3>
+                            <p>Military-grade protection for your most sensitive files</p>
+                        </div>
+                        
+                        <div class="feature-card">
+                            <div class="feature-icon green">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path>
+                                    <polyline points="16 6 12 2 8 6"></polyline>
+                                    <line x1="12" y1="2" x2="12" y2="15"></line>
+                                </svg>
+                            </div>
+                            <h3>Multiple Storage Options</h3>
+                            <p>Store locally or use our secure cloud storage</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="hero-image">
+                    <img src="AESlogo1.png" alt="SecureVault Encryption" />
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Testimonials Section -->
+    <section class="testimonials">
+        <div class="container">
+            <div class="section-title">
+                <h2>Trusted by thousands worldwide</h2>
+                <p>See why businesses and individuals choose SecureVault for their data security needs</p>
+            </div>
+            
+            <div class="testimonial-grid">
+                <div class="testimonial-card">
+                    <div class="testimonial-content">
+                        "SecureVault has revolutionized how our team handles sensitive client data. The encryption is robust and the interface is intuitive. Couldn't ask for a better solution."
+                    </div>
+                    <div class="testimonial-author">
+                        <div class="testimonial-avatar" style="background-color: #4285F4;">S</div>
+                        <div class="testimonial-info">
+                            <h4>Sarah Johnson</h4>
+                            <p>CTO, TechInnovate</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="testimonial-card">
+                    <div class="testimonial-content">
+                        "As a healthcare provider, patient data security is our top priority. SecureVault's encryption standard meets all our compliance requirements while being remarkably easy to use."
+                    </div>
+                    <div class="testimonial-author">
+                        <div class="testimonial-avatar" style="background-color: #34A853;">M</div>
+                        <div class="testimonial-info">
+                            <h4>Michael Chen</h4>
+                            <p>Director, MedSafe Solutions</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="testimonial-card">
+                    <div class="testimonial-content">
+                        "I use SecureVault to protect my personal documents and financial records. The peace of mind knowing my data is secure is worth every penny of the subscription."
+                    </div>
+                    <div class="testimonial-author">
+                        <div class="testimonial-avatar" style="background-color: #EA4335;">A</div>
+                        <div class="testimonial-info">
+                            <h4>Alex Rivera</h4>
+                            <p>Independent Contractor</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-about">
+                    <div class="footer-logo">
+                        <div class="logo-img">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                            </svg>
+                        </div>
+                        <div class="footer-logo-text">SecureVault</div>
+                    </div>
+                    <p>SecureVault provides industry-leading encryption technology to protect your most valuable data. Our mission is to make advanced security accessible to everyone.</p>
+                    <div class="social-links">
+                        <a href="#" class="social-link">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
+                            </svg>
+                        </a>
+                        <a href="#" class="social-link">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path>
+                            </svg>
+                        </a>
+                        <a href="#" class="social-link">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
+                                <rect x="2" y="9" width="4" height="12"></rect>
+                                <circle cx="4" cy="4" r="2"></circle>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="footer-links">
+                    <h3>Product</h3>
+                    <ul>
+                        <li><a href="#">Features</a></li>
+                        <li><a href="#">Pricing</a></li>
+                        <li><a href="#">Security</a></li>
+                        <li><a href="#">Enterprise</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-links">
+                    <h3>Company</h3>
+                    <ul>
+                        <li><a href="#">About Us</a></li>
+                        <li><a href="#">Careers</a></li>
+                        <li><a href="#">Blog</a></li>
+                        <li><a href="#">Press</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-links">
+                    <h3>Support</h3>
+                    <ul>
+                        <li><a href="#">Help Center</a></li>
+                        <li><a href="#">Contact Us</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Terms of Service</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2025 SecureVault. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- Auth Modal (Hidden by default) -->
+    <div class="auth-modal" id="auth-modal">
+        <div class="auth-card">
+            <div class="auth-header">
+                <div class="auth-logo">
+                    <div class="logo-img">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#4285F4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                        </svg>
+                    </div>
+                    <div class="auth-logo-text">SecureVault</div>
+                </div>
+                <h2 class="auth-title">Sign in to your account</h2>
+                <p class="auth-subtitle">Enter your credentials to continue</p>
+            </div>
+            
+            <div class="auth-body">
+                <form id="login-form">
+                    <div class="form-group">
+                        <label for="login-email" class="form-label">Email</label>
+                        <input type="email" id="login-email" class="form-control" placeholder="Enter your email" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="login-password" class="form-label">Password</label>
+                        <input type="password" id="login-password" class="form-control" placeholder="Enter your password" required>
+                    </div>
+                    
+                    <div class="form-check">
+                        <input type="checkbox" id="remember-check" class="form-check-input">
+                        <label for="remember-check">Stay signed in</label>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">Sign In</button>
+                </form>
+            </div>
+            
+            <div class="auth-footer">
+                <p><a href="#">Forgot your password?</a></p>
+                <p>Don't have an account? <a id="switch-to-signup">Create account</a></p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
